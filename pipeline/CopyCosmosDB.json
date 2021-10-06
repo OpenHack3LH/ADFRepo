@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy_5ao",
+				"name": "Copy_CosmosDB",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {

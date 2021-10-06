@@ -55,7 +55,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "SourceDataset_1sx",
+									"referenceName": "SourceDataset_VanArsdel",
 									"type": "DatasetReference",
 									"parameters": {
 										"cw_table": "@item().source.table"

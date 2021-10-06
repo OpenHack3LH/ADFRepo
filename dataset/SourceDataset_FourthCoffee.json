@@ -1,5 +1,5 @@
 {
-	"name": "SourceDataset_q7i",
+	"name": "SourceDataset_FourthCoffee",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "FourthCoffeeRentals",

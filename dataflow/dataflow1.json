@@ -17,18 +17,37 @@
 						"type": "LinkedServiceReference"
 					},
 					"name": "CloudStreamingCustomers"
+				},
+				{
+					"linkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "VanArsdelCustomer"
 				}
 			],
 			"sinks": [],
 			"transformations": [
 				{
-					"name": "Union1"
+					"name": "UnionSalesStreaming"
 				},
 				{
-					"name": "DerivedColumn1"
+					"name": "FixDates"
+				},
+				{
+					"name": "AddSourceId"
+				},
+				{
+					"name": "SelectCustomer"
+				},
+				{
+					"name": "AddSourceId2"
+				},
+				{
+					"name": "UnionSouthridgeVanArsdel"
 				}
 			],
-			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delimited',\n\tfileSystem: 'southridge',\n\tfolderPath: 'CloudSales',\n\tfileName: 'dbo.Customers.txt',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> CloudSalesCustomers\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delimited',\n\tfileSystem: 'southridge',\n\tfolderPath: 'CloudStreaming',\n\tfileName: 'dbo.Customers.txt',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> CloudStreamingCustomers\nCloudSalesCustomers, CloudStreamingCustomers union(byName: true)~> Union1\nUnion1 derive(CreatedDateTMS = toDate(byName('CreatedDate'))) ~> DerivedColumn1"
+			"script": "source(output(\n\t\tCustomerID as string,\n\t\tLastName as string,\n\t\tFirstName as string,\n\t\tPhoneNumber as long,\n\t\tCreatedDate as string,\n\t\tUpdatedDate as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delimited',\n\tfileSystem: 'southridge',\n\tfolderPath: 'CloudSales',\n\tfileName: 'dbo.Customers.txt',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> CloudSalesCustomers\nsource(output(\n\t\tCustomerID as string,\n\t\tLastName as string,\n\t\tFirstName as string,\n\t\tPhoneNumber as long,\n\t\tCreatedDate as string,\n\t\tUpdatedDate as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delimited',\n\tfileSystem: 'southridge',\n\tfolderPath: 'CloudStreaming',\n\tfileName: 'dbo.Customers.txt',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> CloudStreamingCustomers\nsource(output(\n\t\tCustomerID as string,\n\t\tLastName as string,\n\t\tFirstName as string,\n\t\tAddressLine1 as string,\n\t\tAddressLine2 as string,\n\t\tCity as string,\n\t\tState as string,\n\t\tZipCode as integer,\n\t\tPhoneNumber as long,\n\t\tCreatedDate as string,\n\t\tUpdatedDate as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delimited',\n\tfileSystem: 'southridge',\n\tfolderPath: 'VanArsdel/dboCustomers',\n\tfileName: 'dboCustomers.txt',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> VanArsdelCustomer\nCloudSalesCustomers, CloudStreamingCustomers union(byName: true)~> UnionSalesStreaming\nUnionSouthridgeVanArsdel derive(CreatedDateShort = toDate(byName('CreatedDate')),\n\t\tUpdatedDateShort = toDate(byName('UpdatedDate'))) ~> FixDates\nUnionSalesStreaming derive(SourceID = 1) ~> AddSourceId\nVanArsdelCustomer select(mapColumn(\n\t\tCustomerID,\n\t\tFirstName = LastName,\n\t\tLastName = FirstName,\n\t\tPhoneNumber,\n\t\tCreatedDate,\n\t\tUpdatedDate\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectCustomer\nSelectCustomer derive(SourceId = 2) ~> AddSourceId2\nAddSourceId, AddSourceId2 union(byName: true)~> UnionSouthridgeVanArsdel"
 		}
 	}
 }

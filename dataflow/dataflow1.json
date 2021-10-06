@@ -1,0 +1,27 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "CloudSalesTarget",
+						"type": "DatasetReference"
+					},
+					"name": "CloudSalesCustomers"
+				},
+				{
+					"dataset": {
+						"referenceName": "CloudStreamingTarget",
+						"type": "DatasetReference"
+					},
+					"name": "CloudStreamingCustomers"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> CloudSalesCustomers\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> CloudStreamingCustomers"
+		}
+	}
+}

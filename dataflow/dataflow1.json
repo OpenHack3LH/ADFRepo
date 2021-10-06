@@ -5,23 +5,27 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"dataset": {
-						"referenceName": "CloudSalesTarget",
-						"type": "DatasetReference"
+					"linkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
 					},
 					"name": "CloudSalesCustomers"
 				},
 				{
-					"dataset": {
-						"referenceName": "CloudStreamingTarget",
-						"type": "DatasetReference"
+					"linkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
 					},
 					"name": "CloudStreamingCustomers"
 				}
 			],
 			"sinks": [],
-			"transformations": [],
-			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> CloudSalesCustomers\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> CloudStreamingCustomers"
+			"transformations": [
+				{
+					"name": "Join1"
+				}
+			],
+			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delimited',\n\tfileSystem: 'southridge',\n\tfolderPath: 'CloudSales',\n\tfileName: 'dbo.Customers.txt',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: true) ~> CloudSalesCustomers\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'delimited',\n\tfileSystem: 'southridge',\n\tfolderPath: 'CloudStreaming',\n\tfileName: 'dbo.Customers.txt',\n\tcolumnDelimiter: ',',\n\tescapeChar: '\\\\',\n\tquoteChar: '\\\"',\n\tcolumnNamesAsHeader: false) ~> CloudStreamingCustomers\nCloudSalesCustomers join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),\n\tjoinType:'inner',\n\tbroadcast: 'auto')~> Join1"
 		}
 	}
 }
